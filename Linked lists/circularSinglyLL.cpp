@@ -86,6 +86,63 @@ bool isCircular(Node* head){
     }
     return false;
 }
+bool detectLoop(Node* head){
+    if(head == NULL){
+        return false;
+    }
+    map<Node*, bool> visited;
+    Node* temp = head;
+    while(temp != NULL){
+        //cycle is present
+        if(visited[temp]){
+            return true;
+        }
+        visited[temp] = true;
+        temp = temp->next;
+    }
+    return false;
+}
+Node* floydCycleDetection(Node* head){
+    if(head == NULL){
+        return NULL;
+    }
+    Node* fast = head;
+    Node* slow = head;
+    while(fast != NULL && slow != NULL){
+        fast = fast->next;
+        if(fast != NULL){
+            fast = fast->next;
+        }
+        slow = slow->next;
+        if(fast == slow){
+            return slow;
+        }
+    }
+    return NULL;
+}
+Node* getStarting(Node* head){
+    if( head == NULL){
+        return NULL;
+    }
+    Node *intersection = floydCycleDetection(head);
+    Node *slow = head;
+    while(slow != intersection && intersection != NULL){
+        slow = slow->next;
+        intersection = intersection->next;
+    }
+    return slow;
+}
+void deleteLoop(Node* head){
+    if(head == NULL){
+        return;
+    }
+    Node *startOfLoop = getStarting(head);
+    Node *temp = startOfLoop;
+    while(temp->next != startOfLoop){
+        temp = temp->next;
+    }
+    temp->next = NULL;
+}
 int main()
 {
     //Node *node1 = new Node(10);
@@ -104,10 +161,17 @@ int main()
     insertNode(tail, 3, 6);
     deleteNode(tail, 30);
     printLL(tail);
-    if(isCircular(tail)){
+    /*if(isCircular(tail)){
         cout << "Circular" << endl;
     }else{
         cout << "Not Circular" << endl;
+    }*/
+    if(floydCycleDetection(tail)){
+        cout << "Loop is present" << endl;
     }
+    Node *start = getStarting(tail);
+    cout << "Loop starting from " << start->data << endl;
+    deleteLoop(tail);
+    printLL(tail);
     return 0;
 }
